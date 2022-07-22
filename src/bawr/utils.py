@@ -68,8 +68,8 @@ def bin_to_cpp_data(cpp_file, namespace, bin_file, data_var='DATA', size_var='SI
         f.write("#pragma once\n\n")
         f.write(f"namespace {namespace} {{\n")
         f.write(f" namespace {sub_namespace} {{\n")
-        f.write(f"  extern const unsigned int {size_var};\n")
-        f.write(f"  extern const unsigned int {data_var}[];\n")
+        f.write(f"  extern const int {size_var};\n")
+        f.write(f"  extern const void* {data_var};\n")
         f.write(" }\n")
         f.write("}\n")
 
@@ -77,8 +77,8 @@ def bin_to_cpp_data(cpp_file, namespace, bin_file, data_var='DATA', size_var='SI
         f.write(f'#include "{hpp_file.name}"\n')
         f.write(f"namespace {namespace} {{\n")
         f.write(f" namespace {sub_namespace} {{\n")
-        f.write(f"  const unsigned int {size_var} = {os.stat(bin_file).st_size};\n")
-        f.write(f"  const unsigned int {data_var}[] = {{\n  ")
+        f.write(f"  const int {size_var} = {os.stat(bin_file).st_size};\n")
+        f.write(f"  static const unsigned int raw_{data_var}[] = {{\n  ")
         with open(bin_file, 'rb') as bin:
             n = 0
             c = bin.read(4)
@@ -94,6 +94,7 @@ def bin_to_cpp_data(cpp_file, namespace, bin_file, data_var='DATA', size_var='SI
                 if missing > 0 and missing < 4:
                     c += padding[missing]
         f.write("};\n")
+        f.write(f"  const void* {data_var} = reinterpret_cast<const void*>(raw_{data_var});\n")
         f.write(" }\n")
         f.write("}\n")
 

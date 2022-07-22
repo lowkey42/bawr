@@ -52,17 +52,12 @@ class CppFontHeader:
         print(f"[CPP Font Header] {str(header_file)}")
         with open(header_file, 'w') as f:
             f.write(f'#pragma once\n\n')
-            f.write(f'// Generated: {datetime.now()}\n\n')
 
             if self.macros:
-                f.write(f'#define {self.macro_prefix}{"Font_Family":<32} "{instance.family}"\n')
-                f.write(f'#define {self.macro_prefix}{"Font_StartCode":<32} {hex(instance.start_code)}\n')
-                f.write(f'#define {self.macro_prefix}{"Font_EndCode":<32} {hex(instance.end_code)}\n')
                 for glyph in icons:
                     if glyph.code > 0:
-                        code = "U+" + hex(glyph.code)[2:]
-                        literal = repr( chr(glyph.code).encode( 'utf-8' ))[ 2:-1 ]
-                        f.write(f'#define {self.macro_prefix}{glyph.name:<32} "{literal}" //< {code}\n')
+                        code = hex(glyph.code)[2:]
+                        f.write(f'#define {self.macro_prefix}{glyph.name.upper():<32} "\\u{code}"\n')
 
             if self.constexpr:
                 constexpr = 'constexpr'
@@ -70,22 +65,13 @@ class CppFontHeader:
                 constexpr = 'const'
 
             f.write(f'\nnamespace {namespace}\n{{\n')       
-            f.write(f'    {constexpr} auto {"Font_Family":<32} = "{instance.family}";\n')
-            f.write(f'    {constexpr} auto {"Font_StartCode":<32} = {hex(instance.start_code)};\n')
-            f.write(f'    {constexpr} auto {"Font_EndCode":<32} = {hex(instance.end_code)};\n')
+            f.write(f'    {constexpr} auto {"font_family":<32} = "{instance.family}";\n')
+            f.write(f'    {constexpr} auto {"font_start_code":<32} = {hex(instance.start_code)};\n')
+            f.write(f'    {constexpr} auto {"font_end_code":<32} = {hex(instance.end_code)};\n')
             for glyph in icons:
                 if glyph.code > 0:
-                    code = "U+" + hex(glyph.code)[2:]
-                    literal = repr( chr(glyph.code).encode( 'utf-8' ))[ 2:-1 ]
-                    f.write(f'    {constexpr} auto {glyph.name:<32} = "{literal}"; //< {code}\n')
-
-            f.write(f'\n    namespace code\n    {{\n')       
-            for glyph in icons:
-                if glyph.code > 0:
-                    code = "U+" + hex(glyph.code)[2:]
-                    literal = repr( chr(glyph.code).encode( 'utf-8' ))[ 2:-1 ]
-                    f.write(f'        {constexpr} auto {glyph.name:<32} = "{code}"; //< {literal}\n')
-            f.write('    }\n')
+                    code = hex(glyph.code)[2:]
+                    f.write(f'    {constexpr} auto {glyph.name:<32} = "\\u{code}";\n')
 
             f.write('}\n')
 

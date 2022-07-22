@@ -52,6 +52,7 @@ class CppEmbedded:
         utils.bin_to_cpp_data(
             self.output_data, 
             self.namespace or 'icons', 
-            input_bin
+            input_bin,
+            data_var='bytes', size_var='size'
         )
 
